@@ -6,12 +6,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32/legacybech32"
 )
 
 func TestErrorHandling(t *testing.T) {
@@ -43,16 +43,16 @@ func checkDefaultPubKey(t *testing.T, priv types.LedgerPrivKey) {
 
 func TestPublicKeyUnsafeHDPath(t *testing.T) {
 	expectedAnswers := []string{
-		"cosmospub1addwnpepqd87l8xhcnrrtzxnkql7k55ph8fr9jarf4hn6udwukfprlalu8lgw0urza0",
-		"cosmospub1addwnpepqfsdqjr68h7wjg5wacksmqaypasnra232fkgu5sxdlnlu8j22ztxvlqvd65",
-		"cosmospub1addwnpepqw3xwqun6q43vtgw6p4qspq7srvxhcmvq4jrx5j5ma6xy3r7k6dtxmrkh3d",
-		"cosmospub1addwnpepqvez9lrp09g8w7gkv42y4yr5p6826cu28ydrhrujv862yf4njmqyyjr4pjs",
-		"cosmospub1addwnpepq06hw3enfrtmq8n67teytcmtnrgcr0yntmyt25kdukfjkerdc7lqg32rcz7",
-		"cosmospub1addwnpepqg3trf2gd0s2940nckrxherwqhgmm6xd5h4pcnrh4x7y35h6yafmcpk5qns",
-		"cosmospub1addwnpepqdm6rjpx6wsref8wjn7ym6ntejet430j4szpngfgc20caz83lu545vuv8hp",
-		"cosmospub1addwnpepqvdhtjzy2wf44dm03jxsketxc07vzqwvt3vawqqtljgsr9s7jvydjmt66ew",
-		"cosmospub1addwnpepqwystfpyxwcava7v3t7ndps5xzu6s553wxcxzmmnxevlzvwrlqpzz695nw9",
-		"cosmospub1addwnpepqw970u6gjqkccg9u3rfj99857wupj2z9fqfzy2w7e5dd7xn7kzzgkgqch0r",
+		`{"key":"A0/vnNfExjWI07A/61KBudIyy6NNbz1xruWSEf+/4f6H"}`,
+		`{"key":"AmDQSHo9/Okiju4tDYOkD2Ex9VFSbI5SBm/n/h5KUJZm"}`,
+		`{"key":"A6JnA5PQKxYtDtBqCAQegNhr42wFZDNSVN90YkR+tpqz"}`,
+		`{"key":"AzIi/GF5UHd5FmVUSpB0Do6tY4o5GjuPkmH0oiazlsBC"}`,
+		`{"key":"A/V3RzNI17AeevLyReNrmNGBvJNeyLVSzeWTK2Rtx74E"}`,
+		`{"key":"AiKxpUhr4KLV88WGa+RuBdG96M2l6hxMd6m8SNL6J1O8"}`,
+		`{"key":"A3ehyCbToDyk7pT8TeprzLK6xfKsBBmhKMKfjojx/yla"}`,
+		`{"key":"Axt1yERTk1q3b4yNC2Vmw/zBAcxcWdcAC/yRAZYekwjZ"}`,
+		`{"key":"A4kFpCQzsdZ3zIr9NoYUMLmoUpFxsGFvczZZ8THD+AIh"}`,
+		`{"key":"A4vn80iQLYwgvIjTIpT087gZKEVIEiIp3s0a3xp+sISL"}`,
 	}
 
 	const numIters = 10
@@ -73,10 +73,11 @@ func TestPublicKeyUnsafeHDPath(t *testing.T) {
 		require.NoError(t, tmp.ValidateKey())
 		(&tmp).AssertIsPrivKeyInner()
 
-		pubKeyAddr, err := legacybech32.MarshalPubKey(legacybech32.AccPK, priv.PubKey())
+		// in this test we are chekcking if the generated keys are correct, so no need to wrap into Any.
+		pkBz, err := codec.ProtoMarshalJSON(priv.PubKey(), nil)
 		require.NoError(t, err)
 		require.Equal(t,
-			expectedAnswers[i], pubKeyAddr,
+			expectedAnswers[i], string(pkBz),
 			"Is your device using test mnemonic: %s ?", testutil.TestMnemonic)
 
 		// Store and restore
@@ -111,16 +112,16 @@ func TestPublicKeySafe(t *testing.T) {
 
 func TestPublicKeyHDPath(t *testing.T) {
 	expectedPubKeys := []string{
-		"cosmospub1addwnpepqd87l8xhcnrrtzxnkql7k55ph8fr9jarf4hn6udwukfprlalu8lgw0urza0",
-		"cosmospub1addwnpepqfsdqjr68h7wjg5wacksmqaypasnra232fkgu5sxdlnlu8j22ztxvlqvd65",
-		"cosmospub1addwnpepqw3xwqun6q43vtgw6p4qspq7srvxhcmvq4jrx5j5ma6xy3r7k6dtxmrkh3d",
-		"cosmospub1addwnpepqvez9lrp09g8w7gkv42y4yr5p6826cu28ydrhrujv862yf4njmqyyjr4pjs",
-		"cosmospub1addwnpepq06hw3enfrtmq8n67teytcmtnrgcr0yntmyt25kdukfjkerdc7lqg32rcz7",
-		"cosmospub1addwnpepqg3trf2gd0s2940nckrxherwqhgmm6xd5h4pcnrh4x7y35h6yafmcpk5qns",
-		"cosmospub1addwnpepqdm6rjpx6wsref8wjn7ym6ntejet430j4szpngfgc20caz83lu545vuv8hp",
-		"cosmospub1addwnpepqvdhtjzy2wf44dm03jxsketxc07vzqwvt3vawqqtljgsr9s7jvydjmt66ew",
-		"cosmospub1addwnpepqwystfpyxwcava7v3t7ndps5xzu6s553wxcxzmmnxevlzvwrlqpzz695nw9",
-		"cosmospub1addwnpepqw970u6gjqkccg9u3rfj99857wupj2z9fqfzy2w7e5dd7xn7kzzgkgqch0r",
+		`{"key":"A0/vnNfExjWI07A/61KBudIyy6NNbz1xruWSEf+/4f6H"}`,
+		`{"key":"AmDQSHo9/Okiju4tDYOkD2Ex9VFSbI5SBm/n/h5KUJZm"}`,
+		`{"key":"A6JnA5PQKxYtDtBqCAQegNhr42wFZDNSVN90YkR+tpqz"}`,
+		`{"key":"AzIi/GF5UHd5FmVUSpB0Do6tY4o5GjuPkmH0oiazlsBC"}`,
+		`{"key":"A/V3RzNI17AeevLyReNrmNGBvJNeyLVSzeWTK2Rtx74E"}`,
+		`{"key":"AiKxpUhr4KLV88WGa+RuBdG96M2l6hxMd6m8SNL6J1O8"}`,
+		`{"key":"A3ehyCbToDyk7pT8TeprzLK6xfKsBBmhKMKfjojx/yla"}`,
+		`{"key":"Axt1yERTk1q3b4yNC2Vmw/zBAcxcWdcAC/yRAZYekwjZ"}`,
+		`{"key":"A4kFpCQzsdZ3zIr9NoYUMLmoUpFxsGFvczZZ8THD+AIh"}`,
+		`{"key":"A4vn80iQLYwgvIjTIpT087gZKEVIEiIp3s0a3xp+sISL"}`,
 	}
 
 	expectedAddrs := []string{
@@ -161,10 +162,11 @@ func TestPublicKeyHDPath(t *testing.T) {
 		require.NoError(t, tmp.ValidateKey())
 		(&tmp).AssertIsPrivKeyInner()
 
-		pubKeyAddr, err := legacybech32.MarshalPubKey(legacybech32.AccPK, priv.PubKey())
+		// in this test we are chekcking if the generated keys are correct and stored in a right path, so no need to wrap into Any.
+		pkBz, err := codec.ProtoMarshalJSON(priv.PubKey(), nil)
 		require.NoError(t, err)
 		require.Equal(t,
-			expectedPubKeys[i], pubKeyAddr,
+			expectedPubKeys[i], string(pkBz),
 			"Is your device using test mnemonic: %s ?", testutil.TestMnemonic)
 
 		// Store and restore
